@@ -111,7 +111,7 @@ type sRnisFloat8 struct {
 }
 
 func (rnisFloat8 *sRnisFloat8) String() string {
-	return string(rnisFloat8.name) + delimiter + strconv.FormatFloat(rnisFloat8.value, 'f', 6, 64)
+	return string(rnisFloat8.name) + delimiter + strconv.FormatFloat(rnisFloat8.value, 'f', -1, 64)
 }
 
 func Deserialize(b []byte) (records []RnisRecord, err error) {
