@@ -73,7 +73,6 @@ func getFilenames(in string) ([]string, error) {
 	}
 
 	if mode.IsDir() {
-		fmt.Println("Dir:", in)
 		var list []string
 		err := filepath.Walk(in, func(path string, info os.FileInfo, err error) error {
 			if err != nil {

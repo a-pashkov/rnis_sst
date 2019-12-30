@@ -74,7 +74,7 @@ func Read(r string, res chan<- writer.CsvRecord, stat chan<- ReaderStat) {
 					if err != nil {
 						panic(err)
 					}
-					if key.KeyType == "o" && key.Prefix == "sp" {
+					if key != nil {
 						val, err := rnis_serialize.Deserialize(dataRecord.Value)
 						if err != nil {
 							panic(err)

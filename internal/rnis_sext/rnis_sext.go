@@ -63,12 +63,18 @@ func rnisTupleDecode(b []byte) (rnisObjKey *RnisObjKey, err error) {
 		return nil, fmt.Errorf("%#X not a atom\n", b)
 	}
 	rnisObjKey.KeyType, b = sextDecodeAtom(b)
+	if rnisObjKey.KeyType != "o" {
+		return nil, nil
+	}
 
 	//Элемент 2 atom
 	if b[0] != eatom {
 		return nil, fmt.Errorf("%#X not a atom\n", b)
 	}
 	rnisObjKey.Prefix, b = sextDecodeAtom(b)
+	if rnisObjKey.Prefix != "sp" {
+		return nil, nil
+	}
 
 	// декодировать Id
 	if b[0] != epos4 {
