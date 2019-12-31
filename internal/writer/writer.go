@@ -37,7 +37,6 @@ func InitWriter(path string, in <-chan CsvRecord, finished chan<- struct{}) {
 		}
 		//fmt.Println(f, err, len(o))
 	}
-	fmt.Println("finished")
 
 	// Закрыть файлы
 	for _, f := range o {

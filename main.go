@@ -7,6 +7,7 @@ import (
 	"github.com/a-pashkov/rnis_sst/internal/writer"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 const (
@@ -15,6 +16,7 @@ const (
 )
 
 func main() {
+	timeStart := time.Now()
 	in := flag.String("i", "./", "file or directory with .sst")
 	out := flag.String("o", "./results", "directory for results")
 	flag.Parse()
@@ -58,6 +60,10 @@ func main() {
 	<-wrFin
 
 	// Удалить исходные файлы
+
+	timeStop := time.Now()
+	Time := timeStop.Sub(timeStart)
+	fmt.Printf("Total time:%.3fsec\n", Time.Seconds())
 }
 
 func getFilenames(in string) ([]string, error) {

@@ -8,6 +8,7 @@ import (
 	"github.com/a-pashkov/rnis_sst/internal/writer"
 	"os"
 	"strconv"
+	"time"
 )
 
 // Статистика чтения из .sst файла
@@ -16,13 +17,16 @@ type ReaderStat struct {
 	DataBlocks    uint64
 	UsedRecords   uint64
 	UnusedRecords uint64
+	Time          time.Duration
 }
 
 func (readerStat *ReaderStat) String() string {
-	return fmt.Sprintf("File:%s DataBlocks:%d UsedRecords:%d UnusedRecords:%d", readerStat.File, readerStat.DataBlocks, readerStat.UsedRecords, readerStat.UnusedRecords)
+	return fmt.Sprintf("File:%s DataBlocks:%d UsedRecords:%d UnusedRecords:%d Time:%.3fsec", readerStat.File, readerStat.DataBlocks, readerStat.UsedRecords, readerStat.UnusedRecords, readerStat.Time.Seconds())
 }
 
 func Read(r string, res chan<- writer.CsvRecord, stat chan<- ReaderStat) {
+	timeStart := time.Now()
+
 	// Открыть файл
 	f, err := os.Open(r)
 	defer f.Close()
@@ -89,6 +93,8 @@ func Read(r string, res chan<- writer.CsvRecord, stat chan<- ReaderStat) {
 			}
 		}
 	}
+	timeStop := time.Now()
+	s.Time = timeStop.Sub(timeStart)
 	stat <- s
 	close(stat)
 }
