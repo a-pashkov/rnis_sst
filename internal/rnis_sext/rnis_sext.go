@@ -1,9 +1,9 @@
 package rnis_sext
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
-	//"os"
 )
 
 const (
@@ -32,10 +32,10 @@ const (
 const maxUint = ^uint64(0)
 
 type RnisObjKey struct {
-	KeyType string // atom 'o'
-	Prefix  string // atom 'Id'|'tmp'
-	Id      int
-	Time    int64
+	//KeyType string // atom 'o'
+	//Prefix  string // atom 'sp'|'tmp'
+	Id   int
+	Time int64
 }
 
 func RnisKeyDecode(b []byte) (*RnisObjKey, error) {
@@ -46,35 +46,41 @@ func RnisKeyDecode(b []byte) (*RnisObjKey, error) {
 func rnisTupleDecode(b []byte) (rnisObjKey *RnisObjKey, err error) {
 	rnisObjKey = new(RnisObjKey)
 
-	// Проверка, что tuple
-	if b[0] != etuple {
-		return nil, fmt.Errorf("%#X not a tuple\n", b)
-	}
+	//// Проверка, что tuple
+	//if b[0] != etuple {
+	//	return nil, fmt.Errorf("%#X not a tuple\n", b)
+	//}
 
-	// Проверка размера tuple
-	size := binary.BigEndian.Uint32(b[1:5])
-	b = b[5:]
-	if size != 4 {
-		return nil, fmt.Errorf("tuple size %d != 4\n", size)
-	}
+	//// Проверка размера tuple
+	//size := binary.BigEndian.Uint32(b[1:5])
+	//b = b[5:]
+	//if size != 4 {
+	//	return nil, fmt.Errorf("tuple size %d != 4\n", size)
+	//}
 
-	// Элемент 1 atom
-	if b[0] != eatom {
-		return nil, fmt.Errorf("%#X not a atom\n", b)
-	}
-	rnisObjKey.KeyType, b = sextDecodeAtom(b)
-	if rnisObjKey.KeyType != "o" {
+	//// Элемент 1 atom
+	//if b[0] != eatom {
+	//	return nil, fmt.Errorf("%#X not a atom\n", b)
+	//}
+	//rnisObjKey.KeyType, b = sextDecodeAtom(b)
+	//if rnisObjKey.KeyType != "o" {
+	//	return nil, nil
+	//}
+
+	////Элемент 2 atom
+	//if b[0] != eatom {
+	//	return nil, fmt.Errorf("%#X not a atom\n", b)
+	//}
+	//rnisObjKey.Prefix, b = sextDecodeAtom(b)
+	//if rnisObjKey.Prefix != "sp" {
+	//	return nil, nil
+	//}
+
+	// Проверка, что ключ {'o', 'sp', _, _}
+	if !bytes.Equal(b[:14], []byte{16, 0, 0, 0, 4, 12, 183, 128, 8, 12, 185, 220, 0, 8}) {
 		return nil, nil
 	}
-
-	//Элемент 2 atom
-	if b[0] != eatom {
-		return nil, fmt.Errorf("%#X not a atom\n", b)
-	}
-	rnisObjKey.Prefix, b = sextDecodeAtom(b)
-	if rnisObjKey.Prefix != "sp" {
-		return nil, nil
-	}
+	b = b[14:]
 
 	// декодировать Id
 	if b[0] != epos4 {
