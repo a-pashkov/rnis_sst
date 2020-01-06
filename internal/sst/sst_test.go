@@ -4,17 +4,19 @@ import (
 	"testing"
 	//"time"
 	"fmt"
-	"os"
+	"io/ioutil"
 )
 
 func TestGetFooter(t *testing.T) {
-	f, err := os.Open("/home/pashkov/satissoft/new_cloud/cloud-download/rnis_sst/test/000622.sst")
-	defer f.Close()
+	data, err := ioutil.ReadFile("/home/admin/redmine_3618/rnis_sst/test/test_db/sst_0/000007.sst")
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
-	footer, err := GetFooter(f)
+	footer, err := GetFooter(data)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	fmt.Println("Footer", footer)
 	//fmt.Println("hi")

@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	wrBuffer   = 10
+	wrBuffer   = 30000
 	statBuffer = 10
 )
 

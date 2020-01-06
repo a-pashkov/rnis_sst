@@ -6,7 +6,7 @@ import (
 	"github.com/a-pashkov/rnis_sst/internal/rnis_sext"
 	"github.com/a-pashkov/rnis_sst/internal/sst"
 	"github.com/a-pashkov/rnis_sst/internal/writer"
-	"os"
+	"io/ioutil"
 	"strconv"
 	"time"
 )
@@ -27,21 +27,19 @@ func (readerStat *ReaderStat) String() string {
 func Read(r string, res chan<- writer.CsvRecord, stat chan<- ReaderStat) {
 	timeStart := time.Now()
 
-	// Открыть файл
-	f, err := os.Open(r)
-	defer f.Close()
+	data, err := ioutil.ReadFile(r)
 	if err != nil {
 		panic(err)
 	}
 
 	// Получить footer
-	footer, err := sst.GetFooter(f)
+	footer, err := sst.GetFooter(data)
 	if err != nil {
 		panic(err)
 	}
 
 	// Получить индексный блок из файла и распаковать его
-	indexBlock, err := sst.GetBlock(f, footer.IndexOffset, footer.IndexSize)
+	indexBlock, err := sst.GetBlock(data, footer.IndexOffset, footer.IndexSize)
 	if err != nil {
 		panic(err)
 	}
@@ -61,7 +59,7 @@ func Read(r string, res chan<- writer.CsvRecord, stat chan<- ReaderStat) {
 			//fmt.Println("dataOffset", dataOffset, "dataSize", dataSize)
 
 			// Получаем dataBlock
-			dataBlock, err := sst.GetBlock(f, dataOffset, dataSize)
+			dataBlock, err := sst.GetBlock(data, dataOffset, dataSize)
 			if err != nil {
 				panic(err)
 			}

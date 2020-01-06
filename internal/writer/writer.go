@@ -10,7 +10,7 @@ import (
 
 const (
 	ext          = ".csv"
-	maxOpenFiles = 100
+	maxOpenFiles = 10000
 )
 
 type CsvRecord struct {

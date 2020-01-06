@@ -6,7 +6,6 @@ import (
 	"errors"
 	//"fmt"
 	"github.com/golang/snappy"
-	"os"
 )
 
 const (
@@ -60,19 +59,11 @@ type Record struct {
 //	return nil, nil
 //}
 
-func GetFooter(f *os.File) (footer Footer, err error) {
-	// сдвигаем до footer
-	f.Seek(-footerSize, 2)
-
-	// Читаем footer
-	buffer := make([]byte, footerSize)
-	n, err := f.Read(buffer)
-	if err != nil {
-		return footer, err
-	}
+func GetFooter(data []byte) (footer Footer, err error) {
+	buffer := data[len(data)-footerSize:]
 
 	// Проверить размер footer
-	if n != footerSize {
+	if len(buffer) != footerSize {
 		return footer, errors.New("Error! reading file")
 	}
 
@@ -103,17 +94,8 @@ func GetUvarint(b []byte) (uvarint uint64, tail []byte) {
 	return uvarint, tail
 }
 
-func GetBlock(f *os.File, offset uint64, size uint64) (block []byte, err error) {
-	buffer := make([]byte, int64(size)+blockTrailerSize)
-	n, err := f.ReadAt(buffer, int64(offset))
-
-	if err != nil {
-		return block, err
-	}
-
-	if n != int(size+blockTrailerSize) {
-		return block, errors.New("Error! reading block data")
-	}
+func GetBlock(data []byte, offset uint64, size uint64) (block []byte, err error) {
+	buffer := data[offset : offset+size+blockTrailerSize]
 
 	block, err = blockUnpack(buffer)
 	return block, err
