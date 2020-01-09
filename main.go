@@ -40,6 +40,7 @@ func main() {
 	go writer.InitWriter(p, res, wrFin)
 
 	// Для каждого файла запустить считыватель и передать имя файла, канал для записи результатов и канал статистики
+	fullStat := reader.ReaderStat{File: *in}
 	for _, f := range files {
 		// Канал статистики считывателя
 		rStat := make(chan reader.ReaderStat, statBuffer)
@@ -48,6 +49,9 @@ func main() {
 
 		// Ожиданиие завершения канала статистики
 		for stat := range rStat {
+			fullStat.DataBlocks += stat.DataBlocks
+			fullStat.UsedRecords += stat.UsedRecords
+			fullStat.UnusedRecords += stat.UnusedRecords
 			fmt.Println(stat.String())
 		}
 
@@ -62,8 +66,8 @@ func main() {
 	// Удалить исходные файлы
 
 	timeStop := time.Now()
-	Time := timeStop.Sub(timeStart)
-	fmt.Printf("Total time:%.3fsec\n", Time.Seconds())
+	fullStat.Time = timeStop.Sub(timeStart)
+	fmt.Println(fullStat.String())
 }
 
 func getFilenames(in string) ([]string, error) {
