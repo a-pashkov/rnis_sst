@@ -5,17 +5,24 @@ import (
 	"fmt"
 	"github.com/a-pashkov/rnis_sst/internal/reader"
 	"github.com/a-pashkov/rnis_sst/internal/writer"
+	"log"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"path/filepath"
 	"time"
 )
 
 const (
-	wrBuffer   = 30000
+	wrBuffer   = 100
 	statBuffer = 10
 )
 
 func main() {
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
 	timeStart := time.Now()
 	in := flag.String("i", "./", "file or directory with .sst")
 	out := flag.String("o", "./results", "directory for results")

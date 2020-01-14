@@ -1,9 +1,9 @@
 package writer
 
 import (
-	"testing"
-	//"time"
 	"fmt"
+	"testing"
+	"time"
 )
 
 func TestInitParallel(t *testing.T) {
@@ -12,23 +12,16 @@ func TestInitParallel(t *testing.T) {
 	fin := make(chan struct{})
 	path := "./"
 
-	go Init(path, rec, fin)
+	go InitWriter(path, rec, fin)
 
-	for i := 0; i < 5; i++ {
-		rec <- CsvRecord{Id: 1, Line: "test1"}
-		fmt.Println("sended")
+	for j := 0; j < 10000; j++ {
+		for i := 0; i < 1000000; i++ {
+			rec <- CsvRecord{Id: j * 1000, Line: "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"}
+		}
 	}
+	time.Sleep(10 * time.Second)
 	close(rec)
 	<-fin
 
 	fmt.Println("end")
-
-	if 1 == 2 {
-		t.Errorf("Hello()")
-	}
 }
-
-//func ExampleInit() {
-//	fmt.Println("tesstss")
-//	// Output: 123
-//}
