@@ -103,6 +103,9 @@ func getSSTFromDir(in string) (result []string, err error) {
 		}
 		return nil
 	})
+	if err != nil {
+		return
+	}
 	if len(result) == 0 {
 		err = fmt.Errorf("%s has no sst files", in)
 	}
