@@ -34,9 +34,6 @@ func main() {
 		panic(err)
 	}
 
-	//// Получить путь для записи результатов -o
-	p := *out
-
 	// Канал записи результатов
 	res := make(chan writer.CsvRecord, wrBuffer)
 
@@ -44,7 +41,7 @@ func main() {
 	wrFin := make(chan struct{})
 
 	//// Запустить writer и передать в него директорию с результатами, канал для данных и канал флага завершения
-	go writer.InitWriter(p, res, wrFin)
+	go writer.InitWriter(*out, res, wrFin)
 
 	// Для каждого файла запустить считыватель и передать имя файла, канал для записи результатов и канал статистики
 	fullStat := reader.ReaderStat{File: *in}
@@ -77,38 +74,44 @@ func main() {
 	fmt.Println(fullStat.String())
 }
 
-func getFilenames(in string) ([]string, error) {
+func getFilenames(in string) (result []string, err error) {
 	stat, err := os.Stat(in)
 	if os.IsNotExist(err) {
 		return nil, fmt.Errorf("%s not found", in)
 	}
-
 	mode := stat.Mode()
-
-	if mode.IsRegular() {
-		return []string{in}, err
-	}
-
 	if mode.IsDir() {
-		var list []string
-		err := filepath.Walk(in, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-
-			m := info.Mode()
-
-			if m.IsRegular() && filepath.Ext(path) == ".sst" {
-				list = append(list, path)
-			}
-
-			return nil
-		})
-
-		if err != nil {
-			return nil, err
+		result, err = getSSTFromDir(in)
+	} else {
+		if isSST(in) {
+			result = append(result, in)
+		} else {
+			err = fmt.Errorf("%s has incorrect extension", in)
 		}
-		return list, nil
 	}
-	return nil, nil
+	return
+}
+
+func getSSTFromDir(in string) (result []string, err error) {
+	err = filepath.Walk(in, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		m := info.Mode()
+		if m.IsRegular() && isSST(path) {
+			result = append(result, path)
+		}
+		return nil
+	})
+	if len(result) == 0 {
+		err = fmt.Errorf("%s has no sst files", in)
+	}
+	return
+}
+
+func isSST(path string) bool {
+	if filepath.Ext(path) == ".sst" {
+		return true
+	}
+	return false
 }
